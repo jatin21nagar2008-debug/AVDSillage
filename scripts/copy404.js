@@ -1,12 +1,30 @@
 import fs from 'fs';
 import path from 'path';
 
+function copyDir(src, dest) {
+  if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
+  for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
+    const s = path.join(src, entry.name);
+    const d = path.join(dest, entry.name);
+    if (entry.isDirectory()) {
+      copyDir(s, d);
+    } else {
+      fs.copyFileSync(s, d);
+    }
+  }
+}
+
 const distIndex = path.resolve('dist', 'index.html');
 const dist404 = path.resolve('dist', '404.html');
+const root404 = path.resolve('404.html');
 
 if (fs.existsSync(distIndex)) {
   fs.copyFileSync(distIndex, dist404);
-  console.log('✓ Successfully created dist/404.html for GitHub Pages SPA routing');
-} else {
-  console.warn('dist/index.html not found, skipping 404.html copy');
+  fs.copyFileSync(distIndex, root404);
+  console.log('✓ Successfully created dist/404.html and root 404.html for GitHub Pages');
+}
+
+if (fs.existsSync('dist/assets')) {
+  copyDir('dist/assets', 'assets');
+  console.log('✓ Successfully synced dist/assets to root assets/ for GitHub Pages');
 }
