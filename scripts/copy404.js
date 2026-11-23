@@ -24,7 +24,14 @@ if (fs.existsSync(distIndex)) {
   console.log('✓ Successfully created dist/404.html and root 404.html for GitHub Pages');
 }
 
-if (fs.existsSync('dist/assets')) {
-  copyDir('dist/assets', 'assets');
-  console.log('✓ Successfully synced dist/assets to root assets/ for GitHub Pages');
-}
+if (fs.existsSync('dist/assets')) copyDir('dist/assets', 'assets');
+if (fs.existsSync('dist/images')) copyDir('dist/images', 'images');
+if (fs.existsSync('dist/videos')) copyDir('dist/videos', 'videos');
+
+['favicon.svg', 'robots.txt', 'sitemap.xml'].forEach(f => {
+  if (fs.existsSync(`dist/${f}`)) {
+    fs.copyFileSync(`dist/${f}`, f);
+  }
+});
+
+console.log('✓ Successfully synced all assets to root for GitHub Pages direct serving');
