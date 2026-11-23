@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { 
@@ -22,6 +22,26 @@ export default function HeroSection({ onOpenQuoteModal }) {
   const { scrollY } = useScroll();
   const yParallax = useTransform(scrollY, [0, 600], [0, 140]);
   const opacityParallax = useTransform(scrollY, [0, 500], [1, 0.25]);
+
+  // Robust asset paths for both local development and GitHub Pages subpath
+  const baseUrl = (typeof import.meta !== 'undefined' && import.meta.env?.BASE_URL) || '/';
+  const cleanBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+  const posterUrl = `${cleanBase}images/tractor-hero.jpg`;
+  const videoUrl = `${cleanBase}videos/tractor-hero.mp4`;
+
+  useEffect(() => {
+    if (videoRef.current) {
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => setIsPlaying(true))
+          .catch(() => {
+            // If autoplay is blocked by browser policy, keep poster active
+            setIsPlaying(false);
+          });
+      }
+    }
+  }, []);
 
   const toggleVideo = () => {
     if (videoRef.current) {
@@ -73,22 +93,37 @@ export default function HeroSection({ onOpenQuoteModal }) {
         style={{ y: yParallax }}
         className="absolute inset-0 z-0 select-none pointer-events-none overflow-hidden"
       >
-        <video
-          ref={videoRef}
-          autoPlay
-          loop
-          muted
-          playsInline
-          poster="/images/tractor-hero.jpg"
-          className="w-full h-full object-cover object-center scale-105"
+        <motion.div
+          animate={{
+            scale: [1, 1.08, 1],
+            x: [0, -10, 0],
+            y: [0, -5, 0]
+          }}
+          transition={{
+            duration: 22,
+            repeat: Infinity,
+            repeatType: "reverse",
+            ease: "easeInOut"
+          }}
+          className="w-full h-full"
         >
-          <source src="/videos/tractor-hero.mp4" type="video/mp4" />
-          <img
-            src="/images/tractor-hero.jpg"
-            alt="Modern agricultural tractor operating in a lush green agricultural field harvesting silage"
+          <video
+            ref={videoRef}
+            autoPlay
+            loop
+            muted
+            playsInline
+            poster={posterUrl}
             className="w-full h-full object-cover object-center"
-          />
-        </video>
+          >
+            <source src={videoUrl} type="video/mp4" />
+            <img
+              src={posterUrl}
+              alt="Modern agricultural tractor operating in a lush green agricultural field harvesting silage"
+              className="w-full h-full object-cover object-center"
+            />
+          </video>
+        </motion.div>
 
         {/* Cinematic Gradient Overlays:
             - Left side gradient: ensures 100% white text contrast
@@ -98,6 +133,7 @@ export default function HeroSection({ onOpenQuoteModal }) {
         <div className="absolute inset-0 bg-gradient-to-r from-brand-950/90 via-brand-950/50 to-brand-950/15" />
         <div className="absolute inset-0 bg-gradient-to-t from-brand-950 via-transparent to-brand-950/60" />
         <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-brand-950/80 to-transparent" />
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#C8E870_1px,transparent_1px)] [background-size:28px_28px]" />
       </motion.div>
 
       {/* Interactive Video Play/Pause Controller (matching Harvestam reference theme) */}

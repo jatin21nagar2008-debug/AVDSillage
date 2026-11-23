@@ -17,11 +17,13 @@ function copyDir(src, dest) {
 const distIndex = path.resolve('dist', 'index.html');
 const dist404 = path.resolve('dist', '404.html');
 const root404 = path.resolve('404.html');
+const rootIndex = path.resolve('index.html');
 
 if (fs.existsSync(distIndex)) {
   fs.copyFileSync(distIndex, dist404);
   fs.copyFileSync(distIndex, root404);
-  console.log('✓ Successfully created dist/404.html and root 404.html for GitHub Pages');
+  fs.copyFileSync(distIndex, rootIndex);
+  console.log('✓ Successfully updated root index.html and 404.html with production build for GitHub Pages');
 }
 
 if (fs.existsSync('dist/assets')) copyDir('dist/assets', 'assets');
